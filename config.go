@@ -15,6 +15,7 @@ type MainConfig struct {
 type SubmenuConfig struct {
 	Name string
 	Url  string
+	Children []SubmenuConfig
 }
 
 type Config struct {

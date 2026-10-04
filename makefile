@@ -4,8 +4,7 @@ BINARY = dec
 PREFIX = /usr/local
 
 all:
-	CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o $(BINARY)
-
+	CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o $(BINARY) -buildvcs=false
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f $(BINARY) $(DESTDIR)$(PREFIX)/bin/

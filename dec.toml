@@ -13,6 +13,14 @@ url = "/"
 name = "blog"
 url = "/blog"
 
+[[submenu.children]]
+name = "baboutx"
+url = "/babout"
+
 [[submenu]]
 name = "about"
+url = "/about"
+
+[[submenu.children]]
+name = "aboutx"
 url = "/about"

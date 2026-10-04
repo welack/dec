@@ -68,6 +68,10 @@ nav#side-bar ul {
     padding: 0;
 }
 
+nav#side-bar ul ul {
+    padding-left: 1.2em;
+}
+
 nav#side-bar li {
     margin: 0;
     padding: 0.1ex 0;
@@ -233,7 +237,7 @@ img {
         padding: 0;
     }
 
-    nav#side-bar ul {
+    nav#side-bar > ul {
         display: flex;
         flex-direction: row;
         gap: 1em;

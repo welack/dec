@@ -6,9 +6,13 @@
 <div class="mainContent">
     <nav id="side-bar">
         <ul>
-            {{ range .Submenu }}
-            <li><a href="{{ .Url }}">&rsaquo; {{ .Name }}</a></li>
-            {{ end }}
+            {{ template "menu" .Submenu }}
         </ul>
     </nav>
+{{ end }}
+
+{{ define "menu" }}
+{{ range . }}
+<li><a href="{{ .Url }}">&rsaquo; {{ .Name }}</a>{{ if .Children }}<ul>{{ template "menu" .Children }}</ul>{{ end }}</li>
+{{ end }}
 {{ end }}
