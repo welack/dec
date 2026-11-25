@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -20,6 +21,7 @@ type Template struct {
 	Body    string
 	Site    Site
 	Submenu []SubmenuConfig
+	Theme   template.HTML
 }
 
 type IndexData struct {
@@ -27,6 +29,7 @@ type IndexData struct {
 	Posts      []Post
 	Pagination Pagination
 	Submenu    []SubmenuConfig
+	Theme      template.HTML
 }
 
 type Post struct {
@@ -42,6 +45,43 @@ type Pagination struct {
 	HasNext     bool
 	PrevURL     string
 	NextURL     string
+}
+
+func themeStyle() template.HTML {
+	c := conf.Colorscheme
+	defaults := map[string]string{
+		"bg":               "#ffffff",
+		"text":             "#000000",
+		"primary":          "#507538",
+		"primary-hover":    "#3c5a2a",
+		"primary-text":     "#ffffff",
+		"muted":            "#666666",
+		"muted-on-primary": "#d8e2c8",
+		"border":           "#dddddd",
+	}
+
+	values := map[string]string{
+		"bg":               c.BG,
+		"text":             c.Text,
+		"primary":          c.Primary,
+		"primary-hover":    c.PrimaryHover,
+		"primary-text":     c.PrimaryText,
+		"muted":            c.Muted,
+		"muted-on-primary": c.MutedOnPrimary,
+		"border":           c.Border,
+	}
+
+	var overrides []string
+	for k, def := range defaults {
+		if v := strings.TrimSpace(values[k]); v != "" && v != def {
+			overrides = append(overrides, fmt.Sprintf("--%s: %s;", k, v))
+		}
+	}
+	if len(overrides) == 0 {
+		return ""
+	}
+	sort.Strings(overrides)
+	return template.HTML("<style>:root{" + strings.Join(overrides, "") + "}</style>")
 }
 
 func (t *Template) render(file, header, footer, outpath, htmlContent string, page *Page) error {
@@ -81,6 +121,7 @@ func (t *Template) render(file, header, footer, outpath, htmlContent string, pag
 		Body:    htmlContent,
 		Site:    Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
 		Submenu: conf.Submenu,
+		Theme:   themeStyle(),
 	}
 
 	if err := os.MkdirAll(filepath.Dir(outpath), 0755); err != nil {

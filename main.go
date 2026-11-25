@@ -53,6 +53,14 @@ func main() {
 		pages := p.build(*draft)
 		indexBuild(pages)
 		generateRSS(pages)
+
+		if err := generateSearchIndex(pages); err != nil {
+			log.Printf("search index error: %v", err)
+		}
+		if err := buildSearchPage(); err != nil {
+			log.Printf("search page error: %v", err)
+		}
+
 		fmt.Println("building site...")
 
 	case "help":
@@ -121,6 +129,41 @@ func (p *Page) build(draft bool) []Page {
 		log.Printf("%v", err)
 	}
 	return pages
+}
+
+func buildSearchPage() error {
+	funcMap := template.FuncMap{
+		"dateFormat": func(format string, t time.Time) string { return t.Format(format) },
+		"now":        func() time.Time { return time.Now() },
+	}
+
+	tmpl, err := template.New("search.html").Funcs(funcMap).ParseFiles("layouts/search.html", "layouts/header.html")
+	if err != nil {
+		return fmt.Errorf("failed to parse template: %w", err)
+	}
+
+	data := struct {
+		Site    Site
+		Submenu []SubmenuConfig
+		Theme   template.HTML
+	}{
+		Site:    Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
+		Submenu: conf.Submenu,
+		Theme:   themeStyle(),
+	}
+
+	outpath := filepath.Join(conf.Main.Output, "search", "index.html")
+	if err := os.MkdirAll(filepath.Dir(outpath), 0755); err != nil {
+		return err
+	}
+
+	outFile, err := os.Create(outpath)
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+
+	return tmpl.Execute(outFile, data)
 }
 
 func indexBuild(pages []Page) error {
@@ -207,6 +250,7 @@ func indexBuild(pages []Page) error {
 			Posts:      pagePosts,
 			Pagination: pagination,
 			Submenu:    conf.Submenu,
+			Theme:      themeStyle(),
 		}
 
 		var outpath string

@@ -5,6 +5,16 @@ url = "https://radhitya.org"
 output = "public"
 amount = 5
 
+[colorscheme]
+bg = "#ffffea"
+text = "#000000"
+primary = "#57a5c4"
+primary_hover = "#0066cc"
+primary_text = "#000000"
+muted = "#555555"
+muted_on_primary = "#1a1a1a"
+border = "#cccccc"
+
 [[submenu]]
 name = "home"
 url = "/"
@@ -16,6 +26,10 @@ url = "/blog"
 [[submenu.children]]
 name = "baboutx"
 url = "/babout"
+
+[[submenu]]
+name = "search"
+url = "/search/"
 
 [[submenu]]
 name = "about"

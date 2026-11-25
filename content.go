@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/yuin/goldmark"
@@ -15,6 +16,12 @@ import (
 	"time"
 )
 
+type SearchEntry struct {
+	Title   string `json:"title"`
+	URL     string `json:"url"`
+	Date    string `json:"date"`
+	Content string `json:"content"`
+}
 type Page struct {
 	Meta     map[string]any // title, date, tags, draft
 	Content  string
@@ -117,4 +124,43 @@ func generateRSS(pages []Page) error {
 
 	outpath := filepath.Join(conf.Main.Output, "index.xml")
 	return os.WriteFile(outpath, buf.Bytes(), 0644)
+}
+
+func generateSearchIndex(pages []Page) error {
+	var entries []SearchEntry
+
+	for _, page := range pages {
+		relPath, _ := filepath.Rel("content", page.FilePath)
+		if !strings.HasPrefix(relPath, "blog/") || filepath.Base(page.FilePath) == "index.md" {
+			continue
+		}
+
+		title, _ := page.Meta["title"].(string)
+
+		dateStr := ""
+		if d, ok := page.Meta["date"].(time.Time); ok {
+			dateStr = d.Format("2006-01-02")
+		}
+		basename := strings.TrimSuffix(filepath.Base(page.FilePath), ".md")
+		url := "/" + basename + "/"
+
+		entries = append(entries, SearchEntry{
+			Title:   title,
+			URL:     url,
+			Date:    dateStr,
+			Content: page.Content,
+		})
+	}
+
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Date > entries[j].Date
+	})
+
+	data, err := json.MarshalIndent(entries, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	outpath := filepath.Join(conf.Main.Output, "search-index.json")
+	return os.WriteFile(outpath, data, 0644)
 }

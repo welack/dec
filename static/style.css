@@ -1,7 +1,18 @@
 /* werc-inspired: colored header/footer, white content */
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --primary: #507538;
+    --primary-hover: #3c5a2a;
+    --primary-text: #ffffff;
+    --muted: #666666;
+    --muted-on-primary: #d8e2c8;
+    --border: #dddddd;
+}
+
 body {
-    color: black;
-    background-color: white;
+    color: var(--text);
+    background-color: var(--bg);
     font-family: Helvetica, Verdana, Arial, 'Liberation Sans', FreeSans, sans-serif;
     font-size: 84%;
     margin: 0;
@@ -10,17 +21,17 @@ body {
 
 a {
     text-decoration: none;
-    color: #507538;
+    color: var(--primary);
 }
 
 a:hover {
     text-decoration: underline;
-    color: #3c5a2a;
+    color: var(--primary-hover);
 }
 
 /* header */
 header {
-    background-color: #507538;
+    background-color: var(--primary);
     border-bottom: 2px solid black;
     padding: 0.5ex 0;
 }
@@ -30,11 +41,11 @@ header h1.site-title {
     font-weight: normal;
     margin: 0;
     padding: 0.25ex 4mm;
-    color: white;
+    color: var(--primary-text);
 }
 
 header h1.site-title a {
-    color: white;
+    color: var(--primary-text);
 }
 
 header h1.site-title a:hover {
@@ -46,7 +57,7 @@ header h1.site-title a:hover {
     font-size: 50%;
     font-style: italic;
     margin-left: 1em;
-    color: #d8e2c8;
+    color: var(--muted-on-primary);
 }
 
 /* content: white, left-aligned like werc */
@@ -58,7 +69,7 @@ header h1.site-title a:hover {
 nav#side-bar {
     width: 16em;
     min-width: 16em;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--border);
     padding-top: 1em;
 }
 
@@ -78,15 +89,15 @@ nav#side-bar li {
 }
 
 nav#side-bar a {
-    color: #507538;
+    color: var(--primary);
     display: block;
     font-weight: bold;
     padding: 0.25em 1ex 0.25em 2mm;
 }
 
 nav#side-bar a:hover {
-    color: white;
-    background-color: #507538;
+    color: var(--primary-text);
+    background-color: var(--primary);
     text-decoration: none;
 }
 
@@ -96,31 +107,31 @@ article {
 }
 
 article h1, article h2 {
-    color: #507538;
+    color: var(--primary);
     font-size: 145.5%;
     font-weight: bold;
     margin: 2em 0 0 0;
     padding: 0.5ex 0;
-    border-bottom: 2px solid #507538;
+    border-bottom: 2px solid var(--primary);
 }
 
 article h2 {
     font-size: 115.5%;
-    border-bottom: 1px solid #507538;
+    border-bottom: 1px solid var(--primary);
 }
 
 article h3, article h4, article h5 {
-    color: #507538;
+    color: var(--primary);
     font-weight: bold;
     margin: 2em 0 0 0;
 }
 
 article a {
-    color: #507538;
+    color: var(--primary);
 }
 
 article a:hover {
-    color: #3c5a2a;
+    color: var(--primary-hover);
 }
 
 p {
@@ -139,14 +150,14 @@ code {
 }
 
 blockquote {
-    border-left: 1px solid #507538;
+    border-left: 1px solid var(--primary);
     font-style: italic;
     margin-left: 0;
     padding-left: 1em;
 }
 
 time {
-    color: #666;
+    color: var(--muted);
     font-size: 91%;
 }
 
@@ -171,19 +182,19 @@ time {
 
 /* footer */
 footer {
-    background-color: #507538;
+    background-color: var(--primary);
     border-top: 2px solid black;
     padding: 1em;
-    color: #d8e2c8;
+    color: var(--muted-on-primary);
     font-size: 91%;
 }
 
 footer a {
-    color: #d8e2c8;
+    color: var(--muted-on-primary);
 }
 
 footer a:hover {
-    color: white;
+    color: var(--primary-text);
 }
 
 /* tables */
@@ -193,8 +204,8 @@ table {
 }
 
 th {
-    color: white;
-    background-color: #507538;
+    color: var(--primary-text);
+    background-color: var(--primary);
 }
 
 tr:nth-child(odd) {
@@ -204,7 +215,7 @@ tr:nth-child(odd) {
 /* pagination */
 .pagination {
     margin-top: 2em;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--border);
     padding-top: 1em;
     display: flex;
     align-items: center;
@@ -213,7 +224,7 @@ tr:nth-child(odd) {
 }
 
 .pagination span {
-    color: #666;
+    color: var(--muted);
 }
 
 img {
@@ -233,7 +244,7 @@ img {
         width: 100%;
         min-width: 0;
         border-right: none;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--border);
         padding: 0;
     }
 
