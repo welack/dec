@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog - {{ .Site.Title }}</title>
+    <meta name="description" content="{{ .Description }}">
+    <link rel="canonical" href="{{ .Canonical }}">
+    <meta property="og:title" content="Blog - {{ .Site.Title }}">
+    <meta property="og:description" content="{{ .Description }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ .Canonical }}">
+    <meta property="og:site_name" content="{{ .Site.Title }}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Blog - {{ .Site.Title }}">
+    <meta name="twitter:description" content="{{ .Description }}">
     <link rel="stylesheet" href="/style.css">
     {{ .Theme }}
 </head>

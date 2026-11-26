@@ -5,11 +5,12 @@ import (
 )
 
 type MainConfig struct {
-	Title    string
-	Subtitle string
-	Url      string
-	Output   string
-	Amount   int
+	Title       string
+	Subtitle    string
+	Description string
+	Url         string
+	Output      string
+	Amount      int
 }
 
 type ColorschemeConfig struct {

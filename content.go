@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/yuin/goldmark"
@@ -163,4 +164,41 @@ func generateSearchIndex(pages []Page) error {
 
 	outpath := filepath.Join(conf.Main.Output, "search-index.json")
 	return os.WriteFile(outpath, data, 0644)
+}
+
+func generateSitemap(pages []Page) error {
+	var buf bytes.Buffer
+	buf.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+	buf.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
+
+	base := strings.TrimRight(conf.Main.Url, "/")
+
+	for _, page := range pages {
+		basename := strings.TrimSuffix(filepath.Base(page.FilePath), ".md")
+
+		loc := base + "/" + basename + "/"
+
+		if basename == "index" {
+			loc = base + "/"
+		}
+
+		buf.WriteString("<url><loc>")
+		if err := xml.EscapeText(&buf, []byte(loc)); err != nil {
+			return err
+		}
+		buf.WriteString("</loc>")
+
+		if d, ok := page.Meta["date"].(time.Time); ok {
+			buf.WriteString("<lastmod>")
+			buf.WriteString(d.Format("2006-01-02"))
+			buf.WriteString("</lastmod>")
+		}
+
+		buf.WriteString("</url>")
+	}
+
+	buf.WriteString("</urlset>")
+
+	outpath := filepath.Join(conf.Main.Output, "sitemap.xml")
+	return os.WriteFile(outpath, buf.Bytes(), 0644)
 }

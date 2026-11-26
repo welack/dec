@@ -53,7 +53,9 @@ func main() {
 		pages := p.build(*draft)
 		indexBuild(pages)
 		generateRSS(pages)
-
+		if err := generateSitemap(pages); err != nil {
+			log.Printf("sitemap error: %v", err)
+		}
 		if err := generateSearchIndex(pages); err != nil {
 			log.Printf("search index error: %v", err)
 		}
@@ -143,13 +145,24 @@ func buildSearchPage() error {
 	}
 
 	data := struct {
-		Site    Site
-		Submenu []SubmenuConfig
-		Theme   template.HTML
+		Site        Site
+		Submenu     []SubmenuConfig
+		Theme       template.HTML
+		Title       string
+		Description string
+		Canonical   string
 	}{
-		Site:    Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
-		Submenu: conf.Submenu,
-		Theme:   themeStyle(),
+		Site: Site{
+			Title:       conf.Main.Title,
+			Subtitle:    conf.Main.Subtitle,
+			Description: conf.Main.Description,
+			URL:         strings.TrimRight(conf.Main.Url, "/"),
+		},
+		Submenu:     conf.Submenu,
+		Theme:       themeStyle(),
+		Title:       "Search - " + conf.Main.Title,
+		Description: "Search posts on " + conf.Main.Title,
+		Canonical:   canonicalURL("/search/"),
 	}
 
 	outpath := filepath.Join(conf.Main.Output, "search", "index.html")
@@ -245,12 +258,28 @@ func indexBuild(pages []Page) error {
 			pagination.NextURL = fmt.Sprintf("/blog/%d/", page+1)
 		}
 
+		canonicalPath := "/blog/"
+		if page > 1 {
+			canonicalPath = fmt.Sprintf("/blog/%d/", page)
+		}
+		desc := conf.Main.Description
+		if strings.TrimSpace(desc) == "" {
+			desc = conf.Main.Subtitle
+		}
+
 		data := IndexData{
-			Site:       Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
-			Posts:      pagePosts,
-			Pagination: pagination,
-			Submenu:    conf.Submenu,
-			Theme:      themeStyle(),
+			Site: Site{
+				Title:       conf.Main.Title,
+				Subtitle:    conf.Main.Subtitle,
+				Description: conf.Main.Description,
+				URL:         strings.TrimRight(conf.Main.Url, "/"),
+			},
+			Posts:       pagePosts,
+			Pagination:  pagination,
+			Submenu:     conf.Submenu,
+			Theme:       themeStyle(),
+			Description: desc,
+			Canonical:   canonicalURL(canonicalPath),
 		}
 
 		var outpath string

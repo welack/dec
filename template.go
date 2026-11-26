@@ -5,31 +5,39 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
 )
 
 type Site struct {
-	Title    string
-	Subtitle string
+	Title       string
+	Subtitle    string
+	Description string
+	URL         string
 }
 
 type Template struct {
-	Title   string
-	Date    string
-	Body    string
-	Site    Site
-	Submenu []SubmenuConfig
-	Theme   template.HTML
+	Title       string
+	Date        string
+	Body        string
+	Description string
+	Canonical   string
+	OGType      string
+	Site        Site
+	Submenu     []SubmenuConfig
+	Theme       template.HTML
 }
 
 type IndexData struct {
-	Site       Site
-	Posts      []Post
-	Pagination Pagination
-	Submenu    []SubmenuConfig
-	Theme      template.HTML
+	Site        Site
+	Posts       []Post
+	Pagination  Pagination
+	Submenu     []SubmenuConfig
+	Theme       template.HTML
+	Description string
+	Canonical   string
 }
 
 type Post struct {
@@ -45,6 +53,55 @@ type Pagination struct {
 	HasNext     bool
 	PrevURL     string
 	NextURL     string
+}
+
+var htmlTagRE = regexp.MustCompile(`<[^>]*>`)
+
+func stripHTML(s string) string {
+	text := htmlTagRE.ReplaceAllString(s, " ")
+	return strings.Join(strings.Fields(text), " ")
+}
+
+func truncateText(s string, max int) string {
+	runes := []rune(strings.TrimSpace(s))
+	if len(runes) <= max {
+		return string(runes)
+	}
+	return strings.TrimSpace(string(runes[:max])) + "..."
+}
+
+func metaDescription(page *Page, body string) string {
+	if page != nil && page.Meta != nil {
+		if desc, ok := page.Meta["description"].(string); ok && strings.TrimSpace(desc) != "" {
+			return strings.TrimSpace(desc)
+		}
+	}
+	if page != nil {
+		if plain := stripHTML(page.Content); plain != "" {
+			return truncateText(plain, 160)
+		}
+	}
+	if plain := stripHTML(body); plain != "" {
+		return truncateText(plain, 160)
+	}
+	if strings.TrimSpace(conf.Main.Description) != "" {
+		return strings.TrimSpace(conf.Main.Description)
+	}
+	return strings.TrimSpace(conf.Main.Subtitle)
+}
+
+func canonicalURL(path string) string {
+	base := strings.TrimRight(conf.Main.Url, "/")
+	if base == "" {
+		return path
+	}
+	if path == "" {
+		return base + "/"
+	}
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	return base + path
 }
 
 func themeStyle() template.HTML {
@@ -115,11 +172,24 @@ func (t *Template) render(file, header, footer, outpath, htmlContent string, pag
 		return fmt.Errorf("invalid date type in frontmatter")
 	}
 
+	pagePath := "/" + strings.TrimSuffix(filepath.Base(page.FilePath), ".md") + "/"
+	if strings.TrimSuffix(filepath.Base(page.FilePath), ".md") == "index" {
+		pagePath = "/"
+	}
+
 	data := Template{
-		Title:   title,
-		Date:    dateStr,
-		Body:    htmlContent,
-		Site:    Site{Title: conf.Main.Title, Subtitle: conf.Main.Subtitle},
+		Title:       title,
+		Date:        dateStr,
+		Body:        htmlContent,
+		Description: metaDescription(page, htmlContent),
+		Canonical:   canonicalURL(pagePath),
+		OGType:      "article",
+		Site: Site{
+			Title:       conf.Main.Title,
+			Subtitle:    conf.Main.Subtitle,
+			Description: conf.Main.Description,
+			URL:         strings.TrimRight(conf.Main.Url, "/"),
+		},
 		Submenu: conf.Submenu,
 		Theme:   themeStyle(),
 	}
